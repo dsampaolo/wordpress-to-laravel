@@ -1,0 +1,30 @@
+{
+  "name": "dsampaolo/wordpress-to-laravel",
+  "description": "Package to sync a Wordpress blog with a Laravel app",
+  "authors": [
+    {
+      "name": "Didier Sampaolo",
+      "email": "didier@lvlup.fr"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "dsampaolo\\": "src/"
+    },
+    "classmap": [
+      "src/models"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "dsampaolo\\WordpressToLaravel\\WordpressToLaravelServiceProvider"
+      ],
+      "aliases": {
+        "WordpressToLaravel": "dsampaolo\\WordpressToLaravel\\WordpressToLaravelFacade"
+      }
+    }
+  }
+}
