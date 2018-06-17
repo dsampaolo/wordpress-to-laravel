@@ -6,6 +6,8 @@ use \Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
+    protected $dates = ['published_at'];
+
     protected $fillable = [
         'title',
         'slug',
@@ -21,4 +23,24 @@ class Post extends Model
         'updated_at',
         'category_id',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function getUrlAttribute()
+    {
+        return url('/blog/'.$this->category->slug.'/'.$this->slug);
+    }
+
+    public function getImageAttribute()
+    {
+        return asset('storage/img/blog/'.$this->featured_image);
+    }
 }
