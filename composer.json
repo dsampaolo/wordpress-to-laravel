@@ -1,6 +1,7 @@
 {
   "name": "dsampaolo/wordpress-to-laravel",
   "description": "Package to sync a Wordpress blog with a Laravel app",
+  "license": "MIT",
   "authors": [
     {
       "name": "Didier Sampaolo",
