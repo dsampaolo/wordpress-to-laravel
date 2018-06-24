@@ -5,6 +5,7 @@ namespace dsampaolo\WordpressToLaravel;
 use Illuminate\Support\Carbon;
 use dsampaolo\WordpressToLaravel\Models\Post;
 use dsampaolo\WordpressToLaravel\Models\Category;
+use Illuminate\Support\Facades\Storage;
 
 class WordpressToLaravelService
 {
@@ -40,13 +41,68 @@ class WordpressToLaravelService
     {
         $found = Post::where('wp_id', $data->id)->first();
 
+        $data = $this->extractImages($data);
+
         if ( ! $found) {
-            return $this->createPost($data);
+            $this->createPost($data);
         }
 
         if ($found and $found->updated_at->format("Y-m-d H:i:s") < $this->carbonDate($data->modified)->format("Y-m-d H:i:s")) {
             return $this->updatePost($found, $data);
         }
+    }
+
+    protected function extractImages($data)
+    {
+        $content = $data->content->rendered;
+
+        $xml = new \DOMDocument();
+        @$xml->loadHTML($content);
+
+        $xpath = new \DOMXPath($xml);
+
+        $images = $xpath->query('//img');
+        foreach ($images as $image) {
+            // first, the "normal image url"
+            $src         = $image->getAttribute('src');
+            $local_image = $this->downloadImage($src);
+            $local_url   = url(Storage::url('img/' . $local_image));
+            $content     = str_replace($src, $local_url, $content);
+
+            // then, the srcset (image with sizes, for responsive purposes)
+            $pattern = "#\/wp-content\/uploads\/([0-9]{4})\/([0-9]{2})\/(.*)-([0-9]+)x([0-9]+)\.([a-z]{3,5})#U";
+            preg_match_all($pattern, $content, $matches);
+
+            if (is_array($matches[0]) && count($matches[0]) > 0) {
+                $images_sizes = $matches[0];
+
+                foreach ($images_sizes as $remote) {
+                    $remote = rtrim($this->blog_url, '/') . $remote;
+                    $local  = $this->downloadImage($remote);
+                    $local  = url(Storage::url('img/' . $local));
+
+                    $content = str_replace($remote, $local, $content);
+                }
+            }
+
+            // finally, the image without size embedded in its name
+            $pattern = "#\/wp-content\/uploads\/([0-9]{4})\/([0-9]{2})\/(.*)\.([a-z]{3,5})#U";
+            preg_match_all($pattern, $content, $matches);
+
+            if (is_array($matches[0]) && count($matches[0]) > 0) {
+
+                $remote = rtrim($this->blog_url, '/') . $matches[0][0];
+                $local  = $this->downloadImage($remote);
+                $local  = url(Storage::url('img/' . $local));
+
+                echo $remote . ' / ' . $local . '<br />';
+                $content = str_replace($remote, $local, $content);
+            }
+        }
+
+        $data->content->rendered = $content;
+
+        return $data;
     }
 
     protected function carbonDate($date)
@@ -82,21 +138,21 @@ class WordpressToLaravelService
         return $post;
     }
 
-    protected function downloadImage($featured_image)
+    protected function downloadImage($image)
     {
-        $featured_local = null;
+        $local = null;
 
-        if ($featured_image) {
-            $featured_name = basename($featured_image);
+        if ($image) {
+            $name = basename($image);
             @mkdir($this->img_storage_path, 0755, true);
-            $featured_path = $this->img_storage_path . '/' . $featured_name;
-            if ( ! is_file($featured_path)) {
-                copy($featured_image, $featured_path);
+            $path = $this->img_storage_path . '/' . $name;
+            if ( ! is_file($path)) {
+                copy($image, $path);
             }
-            $featured_local = $featured_name;
+            $local = $name;
         }
 
-        return $featured_local;
+        return $local;
     }
 
     protected function updatePost(Post $post, $data)
