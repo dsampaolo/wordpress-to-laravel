@@ -7,7 +7,7 @@
         {!! $category->description !!}
 
         @foreach($category->posts as $post)
-            @include('blog._post_thumb', ['post' => $post])
+            @include('wordpress-to-laravel::_post_thumb', ['post' => $post])
         @endforeach
     </div>
 @endsection
