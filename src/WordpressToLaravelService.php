@@ -12,18 +12,21 @@ class WordpressToLaravelService
     protected $blog_url;
     protected $api_url;
     protected $img_storage_path;
+    protected $category_id;
+    protected $import_posts_limit;
 
     public function __construct($config)
     {
-        $this->blog_url         = $config['wordpress-to-laravel']['source_blog_url'];
-        $this->category_id      = $config['wordpress-to-laravel']['source_category_id'];
-        $this->img_storage_path = $config['wordpress-to-laravel']['local_img_storage_path'];
-        $this->api_url          = $this->blog_url . '/wp-json/wp/v2/';
+        $this->blog_url           = $config['wordpress-to-laravel']['source_blog_url'];
+        $this->category_id        = $config['wordpress-to-laravel']['source_category_id'];
+        $this->img_storage_path   = $config['wordpress-to-laravel']['local_img_storage_path'];
+        $this->import_posts_limit = $config['wordpress-to-laravel']['import_posts_limit'];
+        $this->api_url            = $this->blog_url . '/wp-json/wp/v2/';
     }
 
     public function importPosts($page = 1)
     {
-        $posts = collect($this->getJson($this->api_url . 'posts/?_embed&categories=' . $this->category_id . '&filter[orderby]=modified&page=' . $page));
+        $posts = collect($this->getJson($this->api_url . 'posts/?_embed&per_page=' . $this->import_posts_limit . '&categories=' . $this->category_id . '&filter[orderby]=modified&page=' . $page));
         foreach ($posts as $post) {
             echo $post->title->rendered . '<br />';
             $this->syncPost($post);

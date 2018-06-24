@@ -5,7 +5,6 @@ namespace dsampaolo\WordpressToLaravel\Controllers;
 use App\Http\Controllers\Controller;
 use dsampaolo\WordpressToLaravel\Models\Category;
 use dsampaolo\WordpressToLaravel\Models\Post;
-use Illuminate\Support\Facades\Route;
 
 class BlogController extends Controller
 {
@@ -18,7 +17,7 @@ class BlogController extends Controller
 
     public function index()
     {
-        $posts = Post::orderBy('published_at', 'desc')->take(10)->paginate();
+        $posts = Post::orderBy('published_at', 'desc')->paginate(10);
 
         return view('wordpress-to-laravel::index', ['posts' => $posts]);
     }

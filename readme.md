@@ -17,9 +17,10 @@ Edit your .env file (or the package's configuration file) to match your desired 
 
 - WP2LV_BLOG_URL : URL of the remote blog
 - WP2LV_CATEGORY_ID : ID of the category to replicate (parent)
-- WP2LV_RSS_URL : URL of the RSS feed for your Laravel application 
-- WP2LV_LOCAL_BLOG_PATH : URL of the homepage of the blog on your Laravel app
-  
+- WP2LV_RSS_URL (default /feed) : URL of the RSS feed for your Laravel application 
+- WP2LV_LOCAL_BLOG_PATH (default /blog) : URL of the homepage of the blog on your Laravel app 
+- WP2LV_IMPORT_LIMIT (default 20) : how many posts to import/sync 
+
 In the configuration file, you will also find a local_img_storage_path variable, which defines the path where the post's images will be saved. 
   
 That's it. Go to http://example.org/blog to visit your blog.
