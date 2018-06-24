@@ -66,7 +66,7 @@ class WordpressToLaravelService
             // first, the "normal image url"
             $src         = $image->getAttribute('src');
             $local_image = $this->downloadImage($src);
-            $local_url   = url(Storage::url('img/' . $local_image));
+            $local_url   = url(Storage::url('img/blog/' . $local_image));
             $content     = str_replace($src, $local_url, $content);
 
             // then, the srcset (image with sizes, for responsive purposes)
@@ -79,7 +79,7 @@ class WordpressToLaravelService
                 foreach ($images_sizes as $remote) {
                     $remote = rtrim($this->blog_url, '/') . $remote;
                     $local  = $this->downloadImage($remote);
-                    $local  = url(Storage::url('img/' . $local));
+                    $local  = url(Storage::url('img/blog/' . $local));
 
                     $content = str_replace($remote, $local, $content);
                 }
@@ -93,7 +93,7 @@ class WordpressToLaravelService
 
                 $remote = rtrim($this->blog_url, '/') . $matches[0][0];
                 $local  = $this->downloadImage($remote);
-                $local  = url(Storage::url('img/' . $local));
+                $local  = url(Storage::url('img/blog/' . $local));
 
                 echo $remote . ' / ' . $local . '<br />';
                 $content = str_replace($remote, $local, $content);
