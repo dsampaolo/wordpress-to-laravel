@@ -57,7 +57,8 @@ class WordpressToLaravelService
 
     protected function extractImages($data)
     {
-        $content = $data->content->rendered;
+        $content = html_entity_decode($data->content->rendered);
+        file_put_contents('/tmp/content.txt', $content);
 
         $xml = new \DOMDocument();
         @$xml->loadHTML($content);
@@ -71,9 +72,11 @@ class WordpressToLaravelService
             $local_image = $this->downloadImage($src);
             $local_url   = url(Storage::url('img/blog/' . $local_image));
             $content     = str_replace($src, $local_url, $content);
+        }
 
+        foreach ($images as $image) {
             // then, the srcset (image with sizes, for responsive purposes)
-            $pattern = "#\/wp-content\/uploads\/([0-9]{4})\/([0-9]{2})\/(.*)-([0-9]+)x([0-9]+)\.([a-z]{3,5})#U";
+            $pattern = "#\/wp-content\/uploads\/([0-9]{4})\/([0-9]{2})\/(.*)-([0-9]+)x([0-9]+)\.([jpg|png]{3,5})#U";
             preg_match_all($pattern, $content, $matches);
 
             if (is_array($matches[0]) && count($matches[0]) > 0) {
